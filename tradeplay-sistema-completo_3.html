@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradePlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080B14;--bg2:#0D1120;--bg3:#141829;--surface:#1A2035;--surface2:#212840;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#F0F2FF;--muted:rgba(240,242,255,0.45);--muted2:rgba(240,242,255,0.25);--accent:#4F8EF7;--accent2:#6C63FF;--green:#22D4A0;--green2:#16A37A;--red:#F75A5A;--red2:#C43E3E;--gold:#F7C34F;--r:12px;--r2:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5}
+/* ── LOGIN SCREEN ── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 60% 40%,#0d1a3a 0%,var(--bg) 70%)}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;justify-content:center}
+.login-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.login-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:22px}
+.login-logo-text span{color:var(--accent)}
+.login-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;text-align:center}
+.login-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.role-tabs{display:flex;gap:6px;background:var(--bg3);border-radius:var(--r);padding:4px;margin-bottom:24px}
+.role-tab{flex:1;padding:9px;border-radius:9px;font-size:13px;text-align:center;cursor:pointer;color:var(--muted);transition:.15s;font-weight:400}
+.role-tab.active{background:var(--surface);color:var(--text);font-weight:500}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-weight:500}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:.15s}
+.form-input:focus{border-color:var(--accent)}
+.form-select{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;-webkit-appearance:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 20px;border-radius:var(--r);border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;width:100%}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#3a7ee0}
+.btn-success{background:var(--green);color:#041a12}
+.btn-danger{background:var(--red);color:#fff}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+.btn-gold{background:var(--gold);color:#2a1a00}
+.btn-sm{padding:7px 14px;font-size:12px;width:auto}
+.err-msg{background:rgba(247,90,90,.1);border:1px solid rgba(247,90,90,.2);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+.divider-text{text-align:center;font-size:12px;color:var(--muted);margin:16px 0;position:relative}
+.divider-text::before,.divider-text::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border2)}
+.divider-text::before{left:0}.divider-text::after{right:0}
+/* ── APP SHELL ── */
+#app{display:none;flex;height:100vh;overflow:hidden}
+#sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:10}
+.sb-logo{padding:20px 18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.sb-logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+.sb-logo-text span{color:var(--accent)}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;transition:all .15s;color:var(--muted);font-size:13px;margin-bottom:2px;user-select:none}
+.sb-item:hover{background:var(--surface);color:var(--text)}
+.sb-item.active{background:var(--surface);color:var(--text);font-weight:500}
+.sb-item .ico{font-size:15px;width:20px;text-align:center}
+.sb-section{font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;padding:12px 12px 5px}
+.sb-bottom{padding:10px 8px;border-top:1px solid var(--border)}
+.sb-profile{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r);background:var(--surface)}
+.sb-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.sb-profile-info p{font-size:12px;font-weight:500;line-height:1.2}
+.sb-profile-info span{font-size:11px;color:var(--muted)}
+.logout-btn{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r);cursor:pointer;color:var(--red);font-size:12px;margin-top:6px;transition:.15s}
+.logout-btn:hover{background:rgba(247,90,90,.1)}
+#main{flex:1;overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:24px 26px;min-height:100vh}
+.page.active{display:block}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.5px}
+.topbar-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.live-badge{display:flex;align-items:center;gap:7px;background:rgba(34,212,160,0.1);border:1px solid rgba(34,212,160,0.25);padding:6px 13px;border-radius:30px;font-size:12px;font-weight:500;color:var(--green)}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.4s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px}
+.card-sm{padding:14px}
+.card-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.card-value{font-family:'Syne',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.5px}
+.card-value.green{color:var(--green)}
+.card-value.red{color:var(--red)}
+.card-value.gold{color:var(--gold)}
+.card-delta{font-size:12px;margin-top:3px;color:var(--muted)}
+.orders-table{width:100%;border-collapse:collapse}
+.orders-table th{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.orders-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
+.orders-table tr:last-child td{border-bottom:none}
+.orders-table tr:hover td{background:rgba(255,255,255,.02)}
+.dir-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.dir-buy{background:rgba(34,212,160,.12);color:var(--green);border:1px solid rgba(34,212,160,.2)}
+.dir-sell{background:rgba(247,90,90,.12);color:var(--red);border:1px solid rgba(247,90,90,.2)}
+.profit-pos{color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:500}
+.profit-neg{color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:500}
+.pair-tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px}
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:13px}
+.toggle{position:relative;width:38px;height:20px}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--surface2);border-radius:10px;cursor:pointer;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--muted2);border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px);background:#fff}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{font-size:13px;color:var(--muted)}
+.stat-row-value{font-size:13px;font-weight:500}
+.section-heading{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-green{background:rgba(34,212,160,.1);color:var(--green);border:1px solid rgba(34,212,160,.15)}
+.tag-red{background:rgba(247,90,90,.1);color:var(--red);border:1px solid rgba(247,90,90,.15)}
+.tag-blue{background:rgba(79,142,247,.1);color:var(--accent);border:1px solid rgba(79,142,247,.15)}
+.tag-gold{background:rgba(247,195,79,.1);color:var(--gold);border:1px solid rgba(247,195,79,.15)}
+.chart-bar-wrap{display:flex;align-items:flex-end;gap:3px;height:52px;margin-top:7px}
+.chart-bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height .4s}
+.chart-bar.pos{background:var(--green2)}.chart-bar.neg{background:var(--red2)}
+/* MT5 */
+.conn-indicator{width:9px;height:9px;border-radius:50%;background:var(--muted2);display:inline-block;margin-right:5px}
+.conn-indicator.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.conn-indicator.off{background:var(--red)}
+/* PAIR BTNS */
+.pair-btn{padding:5px 10px;border-radius:var(--r);background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:.12s;font-weight:500}
+.pair-btn:hover,.pair-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* CLIENT APP MOBILE */
+.mobile-wrap{display:flex;justify-content:center;padding:6px 0 24px}
+.mobile-frame{width:358px;background:var(--bg2);border-radius:30px;border:1.5px solid var(--border2);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.mobile-status{background:#080B14;padding:12px 18px 8px;display:flex;justify-content:space-between}
+.mobile-header{background:var(--bg3);padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mobile-logo{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
+.mobile-logo span{color:var(--accent)}
+.mobile-body{padding:13px 13px 74px;overflow-y:auto;max-height:580px}
+.mobile-nav{position:sticky;bottom:0;background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 4px;display:flex}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--muted);cursor:pointer}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item .mn-ico{font-size:18px}
+.mini-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.mini-metric{background:var(--bg3);border-radius:var(--r);padding:10px 12px;border:1px solid var(--border)}
+.mini-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;font-weight:500}
+.mini-value{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px}
+/* PUZZLE */
+.puzzle-container{background:linear-gradient(160deg,#0D1120,#141829);border:1px solid var(--border2);border-radius:var(--r2);padding:13px;margin-bottom:12px}
+.puzzle-board{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:10px}
+.puzzle-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .15s;user-select:none}
+.puzzle-cell.empty{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.puzzle-cell.filled{transform:scale(1)}
+.puzzle-cell.selected{outline:2px solid var(--accent);outline-offset:1px;transform:scale(.93)}
+.puzzle-cell.matched{animation:mpop .3s ease}
+@keyframes mpop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.progress-wrap{background:rgba(255,255,255,.06);border-radius:4px;height:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent));transition:width .4s}
+/* ORDER MINI */
+.order-mini{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:5px}
+.order-mini-left{display:flex;align-items:center;gap:7px}
+/* REGISTER */
+.plan-card-r{border:1px solid var(--border);border-radius:var(--r2);padding:15px;cursor:pointer;transition:all .2s;position:relative;margin-bottom:8px}
+.plan-card-r:hover{border-color:var(--border2)}
+.plan-card-r.sel{border-color:var(--accent);background:rgba(79,142,247,.07)}
+.plan-badge-pop{position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;background:var(--accent);color:#fff;padding:2px 9px;border-radius:20px}
+.plan-price-big{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1px;margin:6px 0 4px}
+.plan-feat{font-size:11px;color:var(--muted);margin-bottom:2px}
+.plan-feat::before{content:'✓ ';color:var(--green)}
+.risk-box{background:rgba(247,195,79,.06);border:1px solid rgba(247,195,79,.2);border-radius:var(--r);padding:14px;margin-bottom:16px}
+.risk-title{font-size:13px;font-weight:600;color:var(--gold);margin-bottom:6px}
+.risk-text{font-size:12px;color:var(--muted);line-height:1.6}
+.checkbox-row{display:flex;gap:9px;align-items:flex-start;margin-bottom:9px}
+.checkbox-row input{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:2px}
+.checkbox-row label{font-size:12px;color:var(--muted);cursor:pointer;line-height:1.4}
+.step-ind{display:flex;gap:6px;margin-bottom:22px}
+.step-dot{flex:1;height:3px;border-radius:3px;background:var(--surface2);transition:.3s}
+.step-dot.done{background:var(--green)}.step-dot.active{background:var(--accent)}
+.register-step{display:none}.register-step.active{display:block}
+.pix-box{background:rgba(34,212,160,.06);border:1px solid rgba(34,212,160,.2);border-radius:var(--r);padding:13px;margin-bottom:13px}
+.pix-key{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);padding:8px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid var(--border2);margin-top:7px}
+/* SAQUE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:flex;align-items:center;justify-content:center}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:26px;max-width:460px;width:90%;max-height:85vh;overflow-y:auto}
+.modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:10px 15px;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:slideIn .3s ease;max-width:320px}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-item.success{border-color:rgba(34,212,160,.3)}.toast-item.danger{border-color:rgba(247,90,90,.3)}.toast-item.gold{border-color:rgba(247,195,79,.3)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:4px}
+.form-row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-end}
+.form-group{flex:1}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">📈</div>
+      <div class="login-logo-text">Trade<span>Play</span></div>
+    </div>
+
+    <!-- ROLE TABS -->
+    <div class="role-tabs">
+      <div class="role-tab active" id="tab-cliente" onclick="switchRole('cliente')">👤 Cliente</div>
+      <div class="role-tab" id="tab-trader" onclick="switchRole('trader')">🎯 Trader</div>
+    </div>
+
+    <div id="err-msg" class="err-msg"></div>
+
+    <!-- CLIENTE: LOGIN -->
+    <div id="panel-cliente-login">
+      <div class="login-title">Acesse sua conta</div>
+      <div class="login-sub">Acompanhe seus ganhos e jogue enquanto opera</div>
+      <div style="margin-bottom:18px;margin-top:20px">
+        <div class="form-group" style="margin-bottom:12px"><label class="form-label">E-mail</label><input class="form-input" id="cl-email" type="email" placeholder="seu@email.com"></div>
+        <div class="form-group"><label class="form-label">Senha</label><input class="form-input" id="cl-senha" type="password" placeholder="Sua senha"></div>
+      </div>
+      <button class="btn btn-primary" onclick="loginCliente()">Entrar</button>
+      <div class="divider-text">ou</div>
+      <button class="btn btn-ghost" onclick="showClienteRegister()">Criar conta nova</button>
+    </div>
+
+    <!-- CLIENTE: CADASTRO -->
+    <div id="panel-cliente-register" style="display:none">
+      <div class="login-title">Criar conta</div>
+      <div style="margin-bottom:16px;margin-top:16px">
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Nome completo</label><input class="form-input" id="reg-name" placeholder="João da Silva"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">E-mail</label><input class="form-input" id="reg-email" type="email" placeholder="joao@email.com"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">CPF</label><input class="form-input" id="reg-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCpf(this)"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Senha</label><input class="form-input" id="reg-senha" type="password" placeholder="Crie uma senha"></div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Plano</label>
+          <select class="form-select" id="reg-plano">
+            <option value="250">$250 — Iniciante (0,01% por ordem)</option>
+            <option value="500" selected>$500 — Intermediário (0,01% por ordem)</option>
+            <option value="1000">$1000 — Avançado (0,01% por ordem)</option>
+          </select>
+        </div>
+        <div class="risk-box" style="margin-bottom:12px">
+          <div class="risk-title">⚠ Aviso de Risco</div>
+          <div class="risk-text">Operações no mercado financeiro envolvem risco de perda do capital. O rendimento passado não garante resultado futuro.</div>
+        </div>
+        <div class="checkbox-row"><input type="checkbox" id="ck-risco"><label for="ck-risco">Li e aceito os termos de risco e entendo que posso perder meu capital</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="ck-maior"><label for="ck-maior">Tenho mais de 18 anos e resido no Brasil</label></div>
+      </div>
+      <button class="btn btn-success" onclick="cadastrarCliente()" style="margin-bottom:10px">Criar conta</button>
+      <button class="btn btn-ghost" onclick="showClienteLogin()">← Já tenho conta</button>
+    </div>
+
+    <!-- TRADER LOGIN -->
+    <div id="panel-trader-login" style="display:none">
+      <div class="login-title">Acesso do Trader</div>
+      <div class="login-sub" style="margin-bottom:20px">Área restrita — somente o trader autorizado</div>
+      <div class="form-group" style="margin-bottom:12px"><label class="form-label">Usuário</label><input class="form-input" id="tr-user" placeholder="trader" value="trader"></div>
+      <div class="form-group" style="margin-bottom:18px"><label class="form-label">Senha</label><input class="form-input" id="tr-senha" type="password" placeholder="Senha do trader" onkeydown="if(event.key==='Enter')loginTrader()"></div>
+      <button class="btn btn-primary" onclick="loginTrader()">🎯 Entrar como Trader</button>
+      <div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center">Senha padrão: <strong style="color:var(--accent)">trader123</strong> — altere após o primeiro acesso</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app" style="display:none;flex;height:100vh;overflow:hidden">
+
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">📈</div>
+    <div class="sb-logo-text">Trade<span>Play</span></div>
+  </div>
+  <div class="sb-nav" id="sb-nav"></div>
+  <div class="sb-bottom">
+    <div class="sb-profile">
+      <div class="sb-avatar" id="sb-avatar">?</div>
+      <div class="sb-profile-info">
+        <p id="sb-name">—</p>
+        <span id="sb-role-label">—</span>
+      </div>
+    </div>
+    <div class="logout-btn" onclick="logout()">🚪 Sair</div>
+  </div>
+</div>
+
+<div id="main">
+
+<!-- ═══ TRADER: DASHBOARD ═══ -->
+<div id="page-t-dashboard" class="page">
+  <div class="topbar">
+    <div><div class="topbar-title">Dashboard do Trader</div><div class="topbar-sub">Visão geral das operações</div></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="live-badge" id="mt5-badge"><span class="conn-indicator off" id="conn-dot"></span><span id="conn-txt">MT5 Desconectado</span></div>
+      <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="auto-trade"><span class="toggle-slider"></span></label><span style="font-size:12px;color:var(--muted)">Auto-sim</span></div>
+    </div>
+  </div>
+  <div class="grid4" style="margin-bottom:14px">
+    <div class="card card-sm"><div class="card-label">Lucro Hoje</div><div class="card-value green" id="d-profit">$0.00</div><div class="card-delta" id="d-orders">0 ordens</div></div>
+    <div class="card card-sm"><div class="card-label">Win Rate</div><div class="card-value" id="d-wr">—</div><div class="card-delta" id="d-wl">Aguardando</div></div>
+    <div class="card card-sm"><div class="card-label">Clientes Ativos</div><div class="card-value gold" id="d-clients">0</div><div class="card-delta" id="d-aum">$0 sob gestão</div></div>
+    <div class="card card-sm"><div class="card-label">Repasses Gerados</div><div class="card-value green" id="d-rep">$0.0000</div><div class="card-delta">0,01% × plano</div></div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="section-heading">📊 Performance</div>
+      <div class="chart-bar-wrap" id="perf-chart"></div>
+      <div style="margin-top:10px;display:flex;gap:14px">
+        <div><span style="font-size:11px;color:var(--muted)">Win rate</span><br><strong id="wr-v" style="font-family:'Syne',sans-serif">—</strong></div>
+        <div><span style="font-size:11px;color:var(--muted)">Média +</span><br><strong id="avg-win" style="color:var(--green)">—</strong></div>
+        <div><span style="font-size:11px;color:var(--muted)">Média -</span><br><strong id="avg-loss" style="color:var(--red)">—</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-heading">💸 Repasse por Plano</div>
+      <div class="stat-row"><div class="stat-row-label">Plano $250</div><div class="stat-row-value green" id="rep-250">$0.0000</div></div>
+      <div class="stat-row"><div class="stat-row-label">Plano $500</div><div class="stat-row-value green" id="rep-500">$0.0000</div></div>
+      <div class="stat-row"><div class="stat-row-label">Plano $1000</div><div class="stat-row-value green" id="rep-1000">$0.0000</div></div>
+      <div class="stat-row"><div class="stat-row-label"><strong>Total</strong></div><div class="stat-row-value green" id="rep-total"><strong>$0.0000</strong></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-heading" style="justify-content:space-between"><span>⚡ Últimas Ordens</span><span class="tag tag-blue" id="orders-tag">0</span></div>
+    <table class="orders-table"><thead><tr><th>Par</th><th>Dir.</th><th>Trader</th><th>Repasse $250</th><th>Repasse $500</th><th>Repasse $1000</th><th>Hora</th></tr></thead>
+    <tbody id="orders-body"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Aguardando ordens do MT5...</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ═══ TRADER: NOVA ORDEM ═══ -->
+<div id="page-t-orders" class="page">
+  <div class="topbar"><div><div class="topbar-title">Nova Ordem</div><div class="topbar-sub">Simula envio do MetaTrader 5</div></div></div>
+  <div class="grid2">
+    <div>
+      <div class="card" style="margin-bottom:13px">
+        <div class="section-heading">🖥️ Terminal MT5</div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:500">Par / Ativo</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px" id="pair-btns">
+            <div class="pair-btn sel" onclick="selPair(this,'EURUSD')">EURUSD</div>
+            <div class="pair-btn" onclick="selPair(this,'GBPUSD')">GBPUSD</div>
+            <div class="pair-btn" onclick="selPair(this,'USDJPY')">USDJPY</div>
+            <div class="pair-btn" onclick="selPair(this,'XAUUSD')">XAUUSD</div>
+            <div class="pair-btn" onclick="selPair(this,'BTCUSD')">BTCUSD</div>
+            <div class="pair-btn" onclick="selPair(this,'NASDAQ')">NASDAQ</div>
+            <div class="pair-btn" onclick="selPair(this,'SP500')">SP500</div>
+            <div class="pair-btn" onclick="selPair(this,'WINFUT')">WIN$</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Resultado</label><select class="form-select" id="o-result" onchange="updPrev()"><option value="win">✅ Lucro</option><option value="loss">❌ Perda</option></select></div>
+          <div class="form-group"><label class="form-label">Valor Trader ($)</label><input class="form-input" type="number" id="o-amount" value="120" oninput="updPrev()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Direção</label><select class="form-select" id="o-dir"><option value="BUY">📈 COMPRA</option><option value="SELL">📉 VENDA</option></select></div>
+          <div class="form-group"><label class="form-label">Lotes</label><input class="form-input" type="number" id="o-lots" value="1.00" step="0.01"></div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:13px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">Repasse por plano (por ordem)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Plano $250</div><div id="prev-250" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600">+$0.0250</div></div>
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Plano $500</div><div id="prev-500" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600">+$0.0500</div></div>
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Plano $1000</div><div id="prev-1000" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600">+$0.1000</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-success" style="flex:1" onclick="submitOrder('BUY')">📈 COMPRA</button>
+          <button class="btn btn-danger" style="flex:1" onclick="submitOrder('SELL')">📉 VENDA</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-heading">🤖 Simulador Automático</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Intervalo (seg)</label><input class="form-input" type="number" id="sim-iv" value="8" min="3"></div>
+          <div class="form-group"><label class="form-label">Win rate (%)</label><input class="form-input" type="number" id="sim-wr" value="65"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1" id="sim-btn" onclick="toggleSim()">▶ Iniciar</button>
+          <button class="btn btn-ghost btn-sm" onclick="askAI()" style="flex:0">🤖 IA</button>
+        </div>
+        <div id="sim-status" style="margin-top:8px;font-size:12px;color:var(--muted);display:none"><span class="live-dot" style="width:6px;height:6px;display:inline-block;margin-right:5px"></span>Simulando — próxima em <span id="sim-cd">—</span>s</div>
+      </div>
+    </div>
+    <div class="card"><div class="section-heading">📋 Sessão atual</div><div id="session-orders" style="max-height:480px;overflow-y:auto"><div style="text-align:center;padding:28px;color:var(--muted);font-size:13px">📭 Nenhuma ordem</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ TRADER: HISTORICO ═══ -->
+<div id="page-t-history" class="page">
+  <div class="topbar"><div><div class="topbar-title">Histórico</div></div><button class="btn btn-ghost btn-sm" style="width:auto" onclick="exportCsv()">⬇ CSV</button></div>
+  <div class="card">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <input class="form-input" type="text" id="h-search" placeholder="Buscar par..." style="max-width:160px" oninput="filtHist()">
+      <select class="form-select" id="h-filter" style="max-width:130px" onchange="filtHist()"><option value="all">Todos</option><option value="BUY">Compras</option><option value="SELL">Vendas</option><option value="win">Lucros</option><option value="loss">Perdas</option></select>
+      <span style="font-size:12px;color:var(--muted)" id="h-count">0</span>
+    </div>
+    <table class="orders-table"><thead><tr><th>#</th><th>Par</th><th>Dir.</th><th>Resultado</th><th>Trader</th><th>Repasse total</th><th>Hora</th></tr></thead>
+    <tbody id="hist-body"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Vazio</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ═══ TRADER: CLIENTES ═══ -->
+<div id="page-t-clients" class="page">
+  <div class="topbar"><div><div class="topbar-title">Clientes</div></div></div>
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="card card-sm"><div class="card-label">Total Sob Gestão</div><div class="card-value gold" id="aum-total">$0</div></div>
+    <div class="card card-sm"><div class="card-label">Clientes Ativos</div><div class="card-value" id="cli-n">0</div></div>
+    <div class="card card-sm"><div class="card-label">Repasse Acumulado</div><div class="card-value green" id="cli-rep">$0.0000</div></div>
+  </div>
+  <div class="card">
+    <table class="orders-table"><thead><tr><th>Cliente</th><th>Plano</th><th>Depósito</th><th>Saldo</th><th>Ganhos</th><th>Ordens</th><th>Pode Sacar?</th></tr></thead>
+    <tbody id="cli-body"></tbody></table>
+  </div>
+</div>
+
+<!-- ═══ TRADER: MT5 CONFIG ═══ -->
+<div id="page-t-mt5" class="page">
+  <div class="topbar"><div><div class="topbar-title">Configuração MT5</div><div class="topbar-sub">Conecte sua conta de trading</div></div></div>
+  <div class="grid2">
+    <div>
+      <div class="card" style="margin-bottom:13px">
+        <div class="section-heading">🖥️ Dados da Conta</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="form-group"><label class="form-label">Corretora</label><input class="form-input" id="mt5-broker" value="VTMarkets"></div>
+          <div class="form-group"><label class="form-label">Número da conta</label><input class="form-input" id="mt5-account" type="number" placeholder="Ex: 27754781"></div>
+          <div class="form-group"><label class="form-label">Senha</label><div style="position:relative"><input class="form-input" id="mt5-pwd" type="password" placeholder="Senha MT5" style="padding-right:42px"><button onclick="togglePwd()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer">👁</button></div></div>
+          <div class="form-group"><label class="form-label">Servidor</label><input class="form-input" id="mt5-server" value="VTMarkets-Live 7"></div>
+          <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="mt5-type"><option value="live">🔴 Live (Real)</option><option value="demo">🟡 Demo</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-primary" style="flex:1" onclick="saveMT5()">💾 Salvar</button>
+          <button class="btn btn-success" style="flex:1" onclick="testMT5()">🔌 Testar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-heading">📡 EA para MetaTrader 5</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px">Instale este EA no MT5 para enviar ordens automaticamente ao sistema.</p>
+        <button class="btn btn-ghost" onclick="dlEA()">⬇ Baixar EA.mq5</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-heading">📶 Status</div>
+      <div class="stat-row"><div class="stat-row-label">Conexão</div><div id="mt5-s-conn"><span class="conn-indicator off"></span>Desconectado</div></div>
+      <div class="stat-row"><div class="stat-row-label">Corretora</div><div class="stat-row-value" id="mt5-s-broker">—</div></div>
+      <div class="stat-row"><div class="stat-row-label">Conta</div><div class="stat-row-value" id="mt5-s-acc">—</div></div>
+      <div class="stat-row"><div class="stat-row-label">Servidor</div><div class="stat-row-value" id="mt5-s-srv">—</div></div>
+      <div class="stat-row"><div class="stat-row-label">Última ordem</div><div class="stat-row-value" id="mt5-s-last">Nenhuma</div></div>
+      <div style="margin-top:16px" class="risk-box">
+        <div class="risk-title" style="font-size:11px">🔒 Segurança: Nunca compartilhe sua senha. Em produção use conexão criptografada TLS/SSL.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLIENTE: APP ═══ -->
+<div id="page-c-home" class="page">
+  <div class="topbar">
+    <div><div class="topbar-title">Meu Painel</div><div class="topbar-sub" id="c-plan-label">Plano $500 — 0,01% por ordem</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="live-badge" id="c-live-badge"><span class="live-dot"></span>Aguardando ordens</div>
+      <button class="btn btn-gold btn-sm" style="width:auto" onclick="openSaque()">💰 Sacar</button>
+    </div>
+  </div>
+  <div class="mobile-wrap">
+    <div class="mobile-frame">
+      <div class="mobile-status">
+        <span style="font-family:'Syne',sans-serif;font-weight:600;font-size:13px" id="m-time">09:41</span>
+        <span style="font-size:11px;color:var(--muted)">📶 🔋</span>
+      </div>
+      <div class="mobile-header">
+        <div class="mobile-logo">Trade<span>Play</span></div>
+        <div id="m-live" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;background:var(--muted2);border-radius:50%;display:inline-block"></span>Offline</div>
+      </div>
+      <div class="mobile-body">
+        <div style="padding:2px 0 10px">
+          <div style="font-size:11px;color:var(--muted)">Olá, <span id="m-hello">—</span> 👋</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-top:2px">Seu painel</div>
+        </div>
+        <!-- crédito ativo -->
+        <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:var(--r);padding:10px 12px;margin-bottom:11px;display:flex;align-items:center;gap:9px">
+          <span style="font-size:17px">💼</span>
+          <div><div style="font-size:12px;font-weight:600;color:var(--accent)">Crédito ativo — Plano <span id="m-plano-label">$500</span></div>
+          <div style="font-size:11px;color:var(--muted)">Repasse: 0,01% por ordem fechada</div></div>
+        </div>
+        <!-- métricas -->
+        <div class="mini-metrics">
+          <div class="mini-metric"><div class="mini-label">Saldo</div><div class="mini-value" id="m-bal" style="font-size:14px">—</div></div>
+          <div class="mini-metric"><div class="mini-label">Hoje</div><div class="mini-value green" id="m-today" style="font-size:14px">$0.000</div></div>
+          <div class="mini-metric"><div class="mini-label">Acumulado</div><div class="mini-value green" id="m-total" style="font-size:14px">$0.000</div></div>
+          <div class="mini-metric"><div class="mini-label">Ordens</div><div class="mini-value" id="m-cnt" style="font-size:14px">0</div></div>
+        </div>
+        <!-- saque rápido -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:11px 12px;margin-bottom:11px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:12px;font-weight:500">💰 Saque</div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="m-saque-info">Aguardando...</div></div>
+            <button class="btn btn-gold btn-sm" id="m-saque-btn" onclick="openSaque()">Sacar</button>
+          </div>
+          <div id="m-saque-warn" style="font-size:11px;color:var(--gold);margin-top:6px;display:none">⚠ Saldo menor que o depósito. Aguarde mais ganhos.</div>
+        </div>
+        <!-- puzzle -->
+        <div class="puzzle-container">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:13px">🧩 Jogue enquanto opera!</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold)">⭐ <span id="pz-score">0</span> pts</div>
+          </div>
+          <div class="puzzle-board" id="puzzle-board"></div>
+          <div class="progress-wrap"><div class="progress-fill" id="pz-prog" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <span style="font-size:11px;color:var(--muted)" id="pz-level">Nível 1</span>
+            <button onclick="shufflePuzzle()" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">↺ Embaralhar</button>
+          </div>
+        </div>
+        <!-- ordens recentes -->
+        <div><div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Ordens recentes</div>
+        <div id="m-orders"><div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Aguardando primeira ordem...</div></div></div>
+      </div>
+      <div class="mobile-nav">
+        <div class="mobile-nav-item active"><span class="mn-ico">🏠</span>Início</div>
+        <div class="mobile-nav-item"><span class="mn-ico">📊</span>Resultados</div>
+        <div class="mobile-nav-item"><span class="mn-ico">🧩</span>Jogo</div>
+        <div class="mobile-nav-item"><span class="mn-ico">👤</span>Perfil</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL SAQUE -->
+<div id="saque-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">💰 Solicitar Saque</div>
+    <div style="background:rgba(247,195,79,.06);border:1px solid rgba(247,195,79,.18);border-radius:var(--r);padding:12px;font-size:12px;color:var(--gold);margin-bottom:14px;line-height:1.6">
+      <strong>Regra:</strong> Seu saldo deve ser ≥ ao depósito inicial (<strong>$<span id="modal-dep">—</span></strong>) para poder sacar.
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div class="mini-metric" style="flex:1"><div class="mini-label">Saldo atual</div><div class="mini-value" id="modal-bal" style="font-size:15px">—</div></div>
+      <div class="mini-metric" style="flex:1"><div class="mini-label">Depósito</div><div class="mini-value" id="modal-dep2" style="font-size:15px">—</div></div>
+      <div class="mini-metric" style="flex:1"><div class="mini-label">Ganhos</div><div class="mini-value green" id="modal-gains" style="font-size:15px">—</div></div>
+    </div>
+    <div id="saque-ok">
+      <div class="form-group" style="margin-bottom:11px"><label class="form-label">Valor a sacar ($)</label><input class="form-input" type="number" id="saque-amt" placeholder="0.00" step="0.01"></div>
+      <div class="form-group" style="margin-bottom:11px"><label class="form-label">Chave PIX</label><input class="form-input" id="saque-pix" placeholder="CPF, e-mail ou chave PIX"></div>
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Banco</label><input class="form-input" id="saque-banco" placeholder="Ex: Nubank, Itaú..."></div>
+    </div>
+    <div id="saque-bloq" style="display:none">
+      <div style="background:rgba(247,90,90,.07);border:1px solid rgba(247,90,90,.2);border-radius:var(--r);padding:13px;font-size:13px;color:var(--red);margin-bottom:14px">❌ Saldo insuficiente. Continue aguardando os ganhos das operações do trader.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeSaque()">Cancelar</button>
+      <button class="btn btn-gold" style="flex:2" id="saque-confirm-btn" onclick="confirmarSaque()">✅ Confirmar Saque</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// USERS DB (em memória — demo)
+// ═══════════════════════════════════════
+const TRADER_USER = 'trader';
+const TRADER_PASS = 'trader123';
+
+let CLIENTES = [
+  {nome:'Ana Lima',email:'ana@email.com',senha:'123456',plano:250,deposito:250,saldo:250,ganhos:0,ordens:0},
+  {nome:'Carlos Matos',email:'carlos@email.com',senha:'123456',plano:500,deposito:500,saldo:500,ganhos:0,ordens:0},
+  {nome:'Eduardo Pinto',email:'edu@email.com',senha:'123456',plano:1000,deposito:1000,saldo:1000,ganhos:0,ordens:0},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const S = {
+  role: null, // 'trader' | 'cliente'
+  clienteLogado: null,
+  orders: [],
+  totalProfit: 0,
+  totalRepasse: 0,
+  simActive: false,
+  simTimer: null,
+  simCdTimer: null,
+  simCd: 0,
+  selectedPair: 'EURUSD',
+  mt5Connected: false,
+  pzScore: 0,
+  pzBoard: [],
+  pzSelected: null,
+  pzMatched: new Set(),
+};
+
+const PAIRS = ['EURUSD','GBPUSD','USDJPY','XAUUSD','BTCUSD','NASDAQ','SP500','WINFUT'];
+const EMOJIS = ['🐶','🐱','🦊','🐸','🦁','🐧','🦄','🌸','🌈','⭐','🍕','🎮','🚀','💎','🌙'];
+const calcRep = plan => plan * 0.0001;
+
+// ═══════════════════════════════════════
+// LOGIN / AUTH
+// ═══════════════════════════════════════
+function switchRole(r) {
+  ['cliente','trader'].forEach(x => {
+    document.getElementById('tab-'+x).className='role-tab'+(r===x?' active':'');
+    document.getElementById('panel-'+x+'-login').style.display = r===x ? 'block':'none';
+  });
+  document.getElementById('panel-cliente-register').style.display='none';
+  document.getElementById('err-msg').style.display='none';
+}
+
+function showClienteRegister(){
+  document.getElementById('panel-cliente-login').style.display='none';
+  document.getElementById('panel-cliente-register').style.display='block';
+}
+function showClienteLogin(){
+  document.getElementById('panel-cliente-register').style.display='none';
+  document.getElementById('panel-cliente-login').style.display='block';
+}
+
+function showErr(msg){
+  const el=document.getElementById('err-msg');
+  el.textContent=msg; el.style.display='block';
+  setTimeout(()=>el.style.display='none',3500);
+}
+
+function loginCliente(){
+  const email=document.getElementById('cl-email').value.trim().toLowerCase();
+  const senha=document.getElementById('cl-senha').value;
+  const c=CLIENTES.find(x=>x.email.toLowerCase()===email && x.senha===senha);
+  if(!c){showErr('E-mail ou senha incorretos');return;}
+  S.role='cliente'; S.clienteLogado=c;
+  openApp();
+}
+
+function cadastrarCliente(){
+  const nome=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim().toLowerCase();
+  const senha=document.getElementById('reg-senha').value;
+  const plano=parseInt(document.getElementById('reg-plano').value);
+  const ck1=document.getElementById('ck-risco').checked;
+  const ck2=document.getElementById('ck-maior').checked;
+  if(!nome||!email||!senha){showErr('Preencha todos os campos');return;}
+  if(!ck1||!ck2){showErr('Aceite os termos de risco para continuar');return;}
+  if(CLIENTES.find(x=>x.email.toLowerCase()===email)){showErr('E-mail já cadastrado');return;}
+  const novo={nome,email,senha,plano,deposito:plano,saldo:plano,ganhos:0,ordens:0};
+  CLIENTES.push(novo);
+  S.role='cliente'; S.clienteLogado=novo;
+  // Show pix instructions
+  toast(`✅ Conta criada! Pague $${plano} via PIX para ativar. CNPJ: 52.214.397/0001-18 (Mywalletfx)`,'success');
+  openApp();
+}
+
+function loginTrader(){
+  const user=document.getElementById('tr-user').value.trim();
+  const senha=document.getElementById('tr-senha').value;
+  if(user===TRADER_USER && senha===TRADER_PASS){
+    S.role='trader'; openApp();
+  } else {
+    showErr('Usuário ou senha incorretos');
+  }
+}
+
+function openApp(){
+  document.getElementById('login-screen').style.display='none';
+  const app=document.getElementById('app');
+  app.style.display='flex';
+  buildSidebar();
+  if(S.role==='trader'){
+    nav('t-dashboard');
+    // sample orders
+    setTimeout(()=>{
+      [{pair:'EURUSD',dir:'BUY',isWin:true,amount:180},{pair:'XAUUSD',dir:'SELL',isWin:false,amount:95},{pair:'NASDAQ',dir:'BUY',isWin:true,amount:220}]
+      .forEach((o,i)=>setTimeout(()=>processOrder({...o,id:i+1,time:new Date(Date.now()-(3-i)*100000)}),i*300));
+    },600);
+  } else {
+    nav('c-home');
+    initPuzzle();
+    updClientUI();
+  }
+}
+
+function logout(){
+  S.role=null; S.clienteLogado=null;
+  S.orders=[]; S.totalProfit=0; S.totalRepasse=0;
+  S.simActive=false; clearInterval(S.simTimer); clearInterval(S.simCdTimer);
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  // reset login fields
+  ['cl-email','cl-senha','tr-senha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('err-msg').style.display='none';
+  switchRole('cliente');
+}
+
+// ═══════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════
+function buildSidebar(){
+  const nav=document.getElementById('sb-nav');
+  const avatar=document.getElementById('sb-avatar');
+  const name=document.getElementById('sb-name');
+  const roleLabel=document.getElementById('sb-role-label');
+  if(S.role==='trader'){
+    nav.innerHTML=`
+      <div class="sb-section">Trader</div>
+      <div class="sb-item" onclick="nav('t-dashboard')"><span class="ico">🎯</span> Dashboard</div>
+      <div class="sb-item" onclick="nav('t-orders')"><span class="ico">⚡</span> Nova Ordem</div>
+      <div class="sb-item" onclick="nav('t-history')"><span class="ico">📋</span> Histórico</div>
+      <div class="sb-item" onclick="nav('t-clients')"><span class="ico">👥</span> Clientes</div>
+      <div class="sb-item" onclick="nav('t-mt5')"><span class="ico">🖥️</span> Config. MT5</div>`;
+    avatar.textContent='TR';
+    name.textContent='Trader Admin';
+    roleLabel.textContent='🎯 Painel do Trader';
+  } else {
+    const c=S.clienteLogado;
+    nav.innerHTML=`
+      <div class="sb-section">Cliente</div>
+      <div class="sb-item" onclick="nav('c-home')"><span class="ico">🏠</span> Meu Painel</div>
+      <div class="sb-item" onclick="openSaque()"><span class="ico">💰</span> Sacar</div>`;
+    avatar.textContent=c.nome.charAt(0).toUpperCase();
+    name.textContent=c.nome;
+    roleLabel.textContent='Plano $'+c.plano;
+  }
+}
+
+function nav(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  const pg=document.getElementById('page-'+p);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    if((el.getAttribute('onclick')||'').includes(p))el.classList.add('active');
+  });
+  if(p==='t-clients')renderClients();
+  if(p==='t-history')filtHist();
+}
+
+// ═══════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════
+function updPrev(){
+  const isWin=document.getElementById('o-result').value==='win';
+  const sign=isWin?'+':'-'; const col=isWin?'var(--green)':'var(--red)';
+  ['250','500','1000'].forEach(p=>{
+    const el=document.getElementById('prev-'+p);
+    if(el){el.textContent=sign+'$'+calcRep(+p).toFixed(4);el.style.color=col;}
+  });
+}
+updPrev();
+
+function submitOrder(forcedDir){
+  const dir=forcedDir||document.getElementById('o-dir').value;
+  const isWin=document.getElementById('o-result').value==='win';
+  const amount=parseFloat(document.getElementById('o-amount').value)||100;
+  processOrder({id:S.orders.length+1,pair:S.selectedPair,dir,isWin,amount,time:new Date()});
+}
+
+function processOrder(o){
+  S.orders.unshift(o);
+  const sgn=o.isWin?1:-1;
+  S.totalProfit+=sgn*o.amount;
+  const totalRepOrdem=CLIENTES.reduce((s,c)=>s+calcRep(c.plano),0);
+  S.totalRepasse+=totalRepOrdem;
+
+  CLIENTES.forEach(c=>{
+    const rep=calcRep(c.plano)*sgn;
+    c.saldo+=rep; c.ganhos+=rep; c.ordens++;
+  });
+
+  updDashboard();
+  renderOrderRow(o);
+  addSessionOrder(o);
+
+  // update cliente logado se existir
+  if(S.role==='cliente' && S.clienteLogado){
+    updClientUI();
+    addMobileOrder(o);
+    triggerPzBonus(o.isWin);
+    flashClientBadge();
+  }
+
+  document.getElementById('mt5-s-last').textContent=o.pair+' '+(o.isWin?'+':'-')+'$'+o.amount+' às '+o.time.toLocaleTimeString('pt-BR');
+  toast(o.isWin?`✅ ${o.pair} +$${o.amount.toFixed(2)} — Repasse enviado!`:`❌ ${o.pair} -$${o.amount.toFixed(2)} — Repasse debitado`,o.isWin?'success':'danger');
+}
+
+function renderOrderRow(o){
+  const tb=document.getElementById('orders-body');
+  if(tb.querySelector('td[colspan]'))tb.innerHTML='';
+  const sgn=o.isWin?'+':'-';
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><span class="pair-tag">${o.pair}</span></td>
+    <td><span class="dir-badge ${o.dir==='BUY'?'dir-buy':'dir-sell'}">${o.dir==='BUY'?'▲ Compra':'▼ Venda'}</span></td>
+    <td class="${o.isWin?'profit-pos':'profit-neg'}">${sgn}$${o.amount.toFixed(2)}</td>
+    <td class="${o.isWin?'profit-pos':'profit-neg'}">${sgn}$${calcRep(250).toFixed(4)}</td>
+    <td class="${o.isWin?'profit-pos':'profit-neg'}">${sgn}$${calcRep(500).toFixed(4)}</td>
+    <td class="${o.isWin?'profit-pos':'profit-neg'}">${sgn}$${calcRep(1000).toFixed(4)}</td>
+    <td style="font-size:11px;color:var(--muted)">${o.time.toLocaleTimeString('pt-BR')}</td>`;
+  tb.insertBefore(tr,tb.firstChild);
+  document.getElementById('orders-tag').textContent=S.orders.length;
+}
+
+function addSessionOrder(o){
+  const c=document.getElementById('session-orders');
+  if(c.querySelector('div[style*="Nenhuma"]'))c.innerHTML='';
+  const sgn=o.isWin?'+':'-';
+  const d=document.createElement('div');
+  d.className='order-mini';d.style.animation='slideIn .25s ease';d.style.marginBottom='5px';
+  d.innerHTML=`<div class="order-mini-left"><span class="dir-badge ${o.dir==='BUY'?'dir-buy':'dir-sell'}" style="font-size:10px">${o.dir}</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:11px">${o.pair}</div><div style="font-size:10px;color:var(--muted)">${o.time.toLocaleTimeString('pt-BR')}</div></div></div><div class="${o.isWin?'profit-pos':'profit-neg'}">${sgn}$${o.amount.toFixed(2)}</div>`;
+  c.insertBefore(d,c.firstChild);
+}
+
+function addMobileOrder(o){
+  const c=document.getElementById('m-orders');
+  if(c.querySelector('div[style*="Aguardando"]'))c.innerHTML='';
+  const cl=S.clienteLogado;
+  const rep=calcRep(cl?cl.plano:500);
+  const sgn=o.isWin?'+':'-';
+  const d=document.createElement('div');
+  d.className='order-mini';d.style.cssText='margin-bottom:5px;animation:slideIn .25s ease';
+  d.innerHTML=`<div class="order-mini-left"><span class="dir-badge ${o.dir==='BUY'?'dir-buy':'dir-sell'}" style="font-size:9px">${o.dir}</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:10px">${o.pair}</div><div style="font-size:9px;color:var(--muted)">${o.time.toLocaleTimeString('pt-BR')}</div></div></div><div class="${o.isWin?'profit-pos':'profit-neg'}" style="font-size:11px">${sgn}$${rep.toFixed(4)}</div>`;
+  c.insertBefore(d,c.firstChild);
+  if(c.children.length>6)c.removeChild(c.lastChild);
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function updDashboard(){
+  const wins=S.orders.filter(o=>o.isWin).length;
+  const wr=S.orders.length?(wins/S.orders.length*100).toFixed(0)+'%':'—';
+  const sgn=S.totalProfit>=0?'+':'';
+  const el=document.getElementById('d-profit');if(el){el.textContent=sgn+'$'+Math.abs(S.totalProfit).toFixed(2);el.className='card-value '+(S.totalProfit>=0?'green':'red');}
+  const od=document.getElementById('d-orders');if(od)od.textContent=S.orders.length+' ordens';
+  const wd=document.getElementById('d-wr');if(wd)wd.textContent=wr;
+  const wl=document.getElementById('d-wl');if(wl)wl.textContent=wins+' ganhos / '+(S.orders.length-wins)+' perdas';
+  const aum=CLIENTES.reduce((s,c)=>s+c.deposito,0);
+  const dc=document.getElementById('d-clients');if(dc)dc.textContent=CLIENTES.length;
+  const da=document.getElementById('d-aum');if(da)da.textContent='$'+aum+' sob gestão';
+  const dr=document.getElementById('d-rep');if(dr)dr.textContent='$'+S.totalRepasse.toFixed(4);
+  const n=S.orders.length;
+  ['250','500','1000'].forEach(p=>{const el2=document.getElementById('rep-'+p);if(el2)el2.textContent='$'+(calcRep(+p)*n).toFixed(4);});
+  const rt=document.getElementById('rep-total');if(rt)rt.innerHTML='<strong>$'+S.totalRepasse.toFixed(4)+'</strong>';
+  // chart
+  const chart=document.getElementById('perf-chart');
+  if(chart){
+    const last=S.orders.slice(0,12);chart.innerHTML='';
+    const mx=Math.max(...last.map(o=>o.amount),100);
+    for(let i=last.length-1;i>=0;i--){const b=document.createElement('div');b.className='chart-bar '+(last[i].isWin?'pos':'neg');b.style.height=Math.max(8,(last[i].amount/mx)*48)+'px';chart.appendChild(b);}
+  }
+  const wv=document.getElementById('wr-v');if(wv)wv.textContent=wr;
+  const wns=S.orders.filter(o=>o.isWin); const lss=S.orders.filter(o=>!o.isWin);
+  const aw=document.getElementById('avg-win');if(aw)aw.textContent=wns.length?'$'+(wns.reduce((s,o)=>s+o.amount,0)/wns.length).toFixed(0):'—';
+  const al=document.getElementById('avg-loss');if(al)al.textContent=lss.length?'-$'+(lss.reduce((s,o)=>s+o.amount,0)/lss.length).toFixed(0):'—';
+}
+
+// ═══════════════════════════════════════
+// CLIENT UI
+// ═══════════════════════════════════════
+function updClientUI(){
+  const c=S.clienteLogado;
+  if(!c)return;
+  const bal=c.saldo; const dep=c.deposito;
+  const canSaque=bal>=dep;
+  const fmt=v=>(v>=0?'+$':'-$')+Math.abs(v).toFixed(4);
+
+  const mb=document.getElementById('m-bal');if(mb)mb.textContent='$'+bal.toFixed(4);
+  const mt=document.getElementById('m-total');if(mt){mt.textContent=fmt(c.ganhos);mt.className='mini-value '+(c.ganhos>=0?'green':'red');}
+  const mc=document.getElementById('m-cnt');if(mc)mc.textContent=c.ordens;
+  const mpl=document.getElementById('m-plano-label');if(mpl)mpl.textContent='$'+c.plano;
+  const cpl=document.getElementById('c-plan-label');if(cpl)cpl.textContent='Plano $'+c.plano+' — 0,01% por ordem';
+  const mh=document.getElementById('m-hello');if(mh)mh.textContent=c.nome.split(' ')[0];
+
+  const si=document.getElementById('m-saque-info');if(si)si.textContent='Saldo: $'+bal.toFixed(3)+' | Depósito: $'+dep.toFixed(2);
+  const sw=document.getElementById('m-saque-warn');if(sw)sw.style.display=canSaque?'none':'block';
+
+  // modal
+  const md=document.getElementById('modal-dep');if(md)md.textContent=dep.toFixed(2);
+  const md2=document.getElementById('modal-dep2');if(md2)md2.textContent='$'+dep.toFixed(2);
+  const mb2=document.getElementById('modal-bal');if(mb2)mb2.textContent='$'+bal.toFixed(4);
+  const mg=document.getElementById('modal-gains');if(mg){mg.textContent=fmt(c.ganhos);mg.className='mini-value '+(c.ganhos>=0?'green':'red');}
+}
+
+function flashClientBadge(){
+  const b=document.getElementById('c-live-badge');
+  if(b){b.innerHTML='<span class="live-dot"></span>Ordem recebida!';}
+  const ml=document.getElementById('m-live');
+  if(ml){ml.innerHTML='<span class="live-dot"></span>Ao vivo';ml.style.color='var(--green)';}
+  setTimeout(()=>{if(b)b.innerHTML='<span class="live-dot"></span>Aguardando ordens';},3000);
+}
+
+// ═══════════════════════════════════════
+// SAQUE
+// ═══════════════════════════════════════
+function openSaque(){
+  const c=S.clienteLogado;
+  if(!c)return;
+  updClientUI();
+  const canSaque=c.saldo>=c.deposito;
+  document.getElementById('saque-ok').style.display=canSaque?'block':'none';
+  document.getElementById('saque-bloq').style.display=canSaque?'none':'block';
+  document.getElementById('saque-confirm-btn').disabled=!canSaque;
+  document.getElementById('saque-modal').style.display='flex';
+}
+function closeSaque(){document.getElementById('saque-modal').style.display='none';}
+function confirmarSaque(){
+  const c=S.clienteLogado;
+  const amt=parseFloat(document.getElementById('saque-amt').value);
+  const pix=document.getElementById('saque-pix').value.trim();
+  if(!amt||amt<=0){toast('⚠ Informe o valor','danger');return;}
+  if(!pix){toast('⚠ Informe a chave PIX','danger');return;}
+  if(amt>c.saldo){toast('⚠ Valor maior que o saldo','danger');return;}
+  if(c.saldo<c.deposito){toast('❌ Saldo insuficiente para saque','danger');return;}
+  c.saldo-=amt; c.ganhos-=amt;
+  closeSaque(); updClientUI();
+  toast(`✅ Saque de $${amt.toFixed(2)} solicitado! PIX: ${pix} — Processando em até 24h`,'success');
+}
+
+// ═══════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════
+function filtHist(){
+  const search=(document.getElementById('h-search')||{}).value||'';
+  const f=(document.getElementById('h-filter')||{}).value||'all';
+  const filtered=S.orders.filter(o=>{
+    if(search&&!o.pair.toLowerCase().includes(search.toLowerCase()))return false;
+    if(f==='BUY'&&o.dir!=='BUY')return false;
+    if(f==='SELL'&&o.dir!=='SELL')return false;
+    if(f==='win'&&!o.isWin)return false;
+    if(f==='loss'&&o.isWin)return false;
+    return true;
+  });
+  const hc=document.getElementById('h-count');if(hc)hc.textContent=filtered.length+' ordens';
+  const tb=document.getElementById('hist-body');if(!tb)return;
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma</td></tr>';return;}
+  const totalRep=CLIENTES.reduce((s,c)=>s+calcRep(c.plano),0);
+  tb.innerHTML=filtered.map(o=>{
+    const sgn=o.isWin?'+':'-';const cls=o.isWin?'profit-pos':'profit-neg';
+    return`<tr><td style="color:var(--muted);font-size:11px">#${o.id}</td><td><span class="pair-tag">${o.pair}</span></td><td><span class="dir-badge ${o.dir==='BUY'?'dir-buy':'dir-sell'}">${o.dir==='BUY'?'▲':'▼'} ${o.dir}</span></td><td><span class="tag ${o.isWin?'tag-green':'tag-red'}">${o.isWin?'Lucro':'Perda'}</span></td><td class="${cls}">${sgn}$${o.amount.toFixed(2)}</td><td class="profit-pos" style="font-size:12px">$${totalRep.toFixed(4)}</td><td style="font-size:11px;color:var(--muted)">${o.time.toLocaleTimeString('pt-BR')}</td></tr>`;
+  }).join('');
+}
+
+function exportCsv(){
+  const rows=[['#','Par','Dir','Resultado','Trader','Repasse','Hora']];
+  const totalRep=CLIENTES.reduce((s,c)=>s+calcRep(c.plano),0);
+  S.orders.forEach(o=>rows.push([o.id,o.pair,o.dir,o.isWin?'Lucro':'Perda',(o.isWin?'+':'-')+'$'+o.amount.toFixed(2),'$'+totalRep.toFixed(4),o.time.toLocaleTimeString('pt-BR')]));
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));a.download='tradeplay.csv';a.click();
+  toast('📥 CSV exportado!','success');
+}
+
+// ═══════════════════════════════════════
+// CLIENTS TABLE
+// ═══════════════════════════════════════
+function renderClients(){
+  const tb=document.getElementById('cli-body');if(!tb)return;
+  const aum=CLIENTES.reduce((s,c)=>s+c.deposito,0);
+  const rep=CLIENTES.reduce((s,c)=>s+Math.max(0,c.ganhos),0);
+  const an=document.getElementById('aum-total');if(an)an.textContent='$'+aum;
+  const cn=document.getElementById('cli-n');if(cn)cn.textContent=CLIENTES.length;
+  const cr=document.getElementById('cli-rep');if(cr)cr.textContent='$'+rep.toFixed(4);
+  tb.innerHTML=CLIENTES.map(c=>{
+    const can=c.saldo>=c.deposito;
+    return`<tr><td style="font-weight:500">${c.nome}</td><td><span class="tag tag-blue">$${c.plano}</span></td><td style="font-size:12px;font-family:'JetBrains Mono',monospace">$${c.deposito.toFixed(2)}</td><td style="font-size:12px;font-family:'JetBrains Mono',monospace">$${c.saldo.toFixed(4)}</td><td class="${c.ganhos>=0?'profit-pos':'profit-neg'}" style="font-size:12px">${c.ganhos>=0?'+':''}\$${c.ganhos.toFixed(4)}</td><td style="color:var(--muted)">${c.ordens}</td><td><span class="tag ${can?'tag-green':'tag-red'}">${can?'✅ Sim':'🔒 Não'}</span></td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// MT5
+// ═══════════════════════════════════════
+function saveMT5(){
+  const broker=document.getElementById('mt5-broker').value.trim();
+  const acc=document.getElementById('mt5-account').value.trim();
+  const pwd=document.getElementById('mt5-pwd').value.trim();
+  const srv=document.getElementById('mt5-server').value.trim();
+  if(!broker||!acc||!pwd||!srv){toast('⚠ Preencha todos os campos','danger');return;}
+  document.getElementById('mt5-s-broker').textContent=broker;
+  document.getElementById('mt5-s-acc').textContent='****'+acc.slice(-4);
+  document.getElementById('mt5-s-srv').textContent=srv;
+  toast('💾 Configuração salva!','success');
+}
+
+function testMT5(){
+  const acc=document.getElementById('mt5-account').value.trim();
+  if(!acc){toast('⚠ Salve a configuração pr
